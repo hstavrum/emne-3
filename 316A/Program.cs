@@ -4,18 +4,17 @@
     {
         static void Main(string[] args)
         {
-            //string[] content = File.ReadAllLines("ordliste-liten.txt");
             string[] content = File.ReadAllLines("ordliste.txt");
 
             string[] words = RetreiveWords(content);
-            Console.WriteLine(string.Join(", ", words));
+            //Console.WriteLine(string.Join(", ", words));
 
             // velg et tilfeldig ord fra listen
             Random rand = new Random();
             int index = rand.Next(words.Length);
             Console.WriteLine("Tilfeldig ord: " + words[index]);
 
-            // Se om det finnes et annet ord som begynner på de 5 samme bokstavene som det tilfeldige ordet slutter på.
+            // se om det finnes et annet ord som begynner på de 5 samme bokstavene som det tilfeldige ordet slutter på.
             string lastFiveLetters = words[index].Substring(words[index].Length - 5);
             Console.WriteLine("Siste fem bokstaver: " + lastFiveLetters);
 
@@ -33,7 +32,7 @@
 
             if (!found)
             {
-                Console.WriteLine("Ingen andre ord funnet som begynner på de siste fem bokstavene.");
+                Console.WriteLine("Ingen ord funnet som begynner på de siste fem bokstavene.");
             }
         }
 
@@ -50,19 +49,16 @@
                     string word = parts[2];
 
                     // ikke skriv ut ordet hvis det er det samme som forrige
-                    if (word != previousWord)
+                    // ikke ta med ord som inneholder bindestrek.
+                    if (word != previousWord && !word.Contains('-'))
                     {
-                        // ta bare med ord med lengde på 7, 8, 9 eller 10
+                        // ta bare med ord med lengde på 7, 8, 9 eller 10.
                         if (word.Length > 6 && word.Length < 11) 
                         {
-                            // ikke ta med ord som inneholder bindestrek
-                            if (!word.Contains('-'))
-                            {
-                                list.Add(word);
-                                previousWord = word;
-                            }                            
+                            list.Add(word);
                         }                        
                     }
+                    previousWord = word;
                 }
             }
             return list.ToArray();
