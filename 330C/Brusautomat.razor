@@ -1,0 +1,75 @@
+@using RazorConsole.Components
+@using Spectre.Console
+
+<Rows>
+    <Markup Content="Brusautomat" Foreground="@Color.Cyan1" Decoration="@Decoration.Bold" />
+    <Markup Content="@($"Saldo: {_saldo} kr")" />
+    <Markup Content="@_melding" />
+    <Markup Content="Sett inn mynt" Decoration="@Decoration.Bold" />
+    <Columns>
+        @foreach (var mynt in Mynter)
+        {
+            <TextButton BackgroundColor="@Color.Grey" FocusedColor="@Color.Blue" Content="@($"{mynt} kr")" OnClick="@(() => SettInnMynt(mynt))" />
+        }
+    </Columns>
+    <Markup Content="Velg drikke" Decoration="@Decoration.Bold" />
+    @foreach (var drikke in _drikker)
+    {
+        <TextButton BackgroundColor="@Color.Grey" FocusedColor="@Color.Blue" Content="@($"{drikke.Navn} – {drikke.Pris} kr ({drikke.Antall} på lager)")"
+                    OnClick="@(() => Kjøp(drikke))" />
+    }
+    <TextButton BackgroundColor="@Color.Grey" FocusedColor="@Color.Blue" Content="Returner saldo" OnClick="ReturnerSaldo" />
+    <Markup Content="Tab / Shift+Tab: velg knapp - Enter: utfør - Ctrl+C: avslutt" />
+</Rows>
+
+@code {
+    private static readonly int[] Mynter = [1, 5, 10, 20];
+
+    private readonly Drikke[] _drikker =
+    [
+        new("Cola", 25, 3),
+        new("Appelsinbrus", 20, 2),
+        new("Sitronbrus", 18, 1)
+    ];
+
+    private int _saldo;
+    private string _melding = "Sett inn en mynt for å begynne.";
+
+    private void SettInnMynt(int mynt)
+    {
+        _saldo += mynt;
+        _melding = $"Du satte inn {mynt} kr.";
+    }
+
+    private void Kjøp(Drikke drikke)
+    {
+        if (drikke.Antall == 0)
+        {
+            _melding = $"{drikke.Navn} er utsolgt.";
+            return;
+        }
+
+        if (_saldo < drikke.Pris)
+        {
+            _melding = $"Du mangler {drikke.Pris - _saldo} kr for å kjøpe {drikke.Navn}.";
+            return;
+        }
+
+        drikke.Antall--;
+        _saldo -= drikke.Pris;
+        _melding = $"Du fikk {drikke.Navn}.";
+    }
+
+    private void ReturnerSaldo()
+    {
+        _melding = _saldo == 0 ? "Ingen saldo å returnere." : $"Du fikk {_saldo} kr tilbake.";
+        _saldo = 0;
+    }
+
+    private sealed class Drikke(string navn, int pris, int antall)
+    {
+        public string Navn { get; } = navn;
+        public int Pris { get; } = pris;
+        public int Antall { get; set; } = antall;
+    }
+}
